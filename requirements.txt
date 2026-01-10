@@ -24,7 +24,7 @@ setuptools==78.1.1
 six==1.17.0
 typeguard==4.4.2
 typing_extensions==4.12.2
-urllib3==2.5.0
+urllib3==2.6.3
 xmltodict==0.14.2
 zope.event==5.0
 zope.interface==7.2
