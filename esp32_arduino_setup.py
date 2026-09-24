@@ -3,7 +3,8 @@ pyinfra deploy: ESP32 / Arduino development setup for Arch Linux
 
 Installs:
   - PlatformIO Core (pip, user-level) — primary workflow
-  - Arduino IDE (AUR, via yay) — for quick sketches
+  - Arduino IDE (AUR, via yay) — for quick sketches, forced onto XWayland
+    via ~/.config/arduino-flags.conf (native Wayland hangs on startup)
   - Serial port access (uucp group)
   - udev rules refresh for common USB-serial chips (CP2102 / CH340)
   - rclone + a systemd --user unit that mounts Google Drive at ~/gdrive on login
@@ -91,6 +92,23 @@ server.shell(
 server.shell(
     name="Install Arduino IDE via yay",
     commands=["yay -S --needed --noconfirm arduino-ide-bin"],
+)
+
+# Under native Wayland (e.g. Hyprland) the IDE's Electron main process hangs
+# on startup with no window and no error. The package's /usr/bin/arduino-ide
+# launcher appends flags from this file, so force it onto XWayland instead.
+ARDUINO_FLAGS = """# Native Wayland hangs on startup (no window); run under XWayland instead
+--ozone-platform=x11
+"""
+
+server.shell(
+    name="Write arduino-flags.conf to run Arduino IDE under XWayland",
+    commands=[
+        "mkdir -p $HOME/.config",
+        "cat > $HOME/.config/arduino-flags.conf << 'EOF'\n"
+        + ARDUINO_FLAGS
+        + "EOF",
+    ],
 )
 
 # ---------------------------------------------------------------------------
