@@ -85,11 +85,12 @@ server.shell(
 )
 
 # ---------------------------------------------------------------------------
-# 4. Arduino IDE (AUR via yay)
+# 4. Arduino IDE (AUR via yay) — the prebuilt -bin package; plain
+#    `arduino-ide` builds electron from source (a full Chromium checkout)
 # ---------------------------------------------------------------------------
 server.shell(
     name="Install Arduino IDE via yay",
-    commands=["yay -S --needed --noconfirm arduino-ide"],
+    commands=["yay -S --needed --noconfirm arduino-ide-bin"],
 )
 
 # ---------------------------------------------------------------------------
