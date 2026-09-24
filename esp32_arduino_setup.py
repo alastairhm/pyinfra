@@ -28,6 +28,8 @@ from pyinfra import host
 from pyinfra.operations import pacman, pip, server
 from pyinfra.facts.server import User, Users
 
+from group_utils import merge_secondary_groups
+
 current_user = host.get_fact(User)
 existing_groups = host.get_fact(Users).get(current_user, {}).get("groups", [])
 
@@ -55,9 +57,7 @@ pacman.packages(
 server.user(
     name="Add user to uucp group for serial port access",
     user=current_user,
-    # `groups` is a full replace (usermod -G), not an append — keep the
-    # user's existing secondary groups (wheel, docker, etc.) intact.
-    groups=sorted(set(existing_groups) | {"uucp"}),
+    groups=merge_secondary_groups(existing_groups, ["uucp"]),
     _sudo=True,
 )
 
