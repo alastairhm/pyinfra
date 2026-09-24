@@ -23,7 +23,7 @@ pyinfra inventory.py deploy.py
 - `inventory.py` defines the target hosts (currently just `["localhost"]`).
 - `deploy.py` defines the operations to run against those hosts.
 
-Since the only target is `localhost` and the `apt.packages` operation uses `_sudo=True`, running the deploy will prompt for the local sudo password (pyinfra connects to localhost as a "local" connector, not SSH).
+Note: `"localhost"` as a bare hostname is resolved via pyinfra's **SSH connector** (it will try to SSH to `127.0.0.1:22`), not the local connector — an sshd must be running and reachable for the deploy to connect. To target the machine directly without SSH, use `"@local"` instead in `inventory.py`.
 
 Add `-v` for verbose output, or `--dry` to preview changes without applying them (standard pyinfra CLI flags — see `pyinfra --help`).
 
