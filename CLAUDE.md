@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A small personal [pyinfra](https://pyinfra.com/) project for provisioning a local Debian/Ubuntu-based machine (`inventory.py` targets `localhost` only). It's a learning/test project, not a multi-host production deploy — keep changes proportional to that.
+A small personal [pyinfra](https://pyinfra.com/) project for provisioning a local machine (`inventory.py` targets `localhost` only). `deploy.py` supports both Debian/Ubuntu (apt) and Arch Linux (pacman) hosts, picking the right package manager and package names at runtime. It's a learning/test project, not a multi-host production deploy — keep changes proportional to that.
 
 ## Setup
 
@@ -32,6 +32,6 @@ Add `-v` for verbose output, or `--dry` to preview changes without applying them
 Structure follows pyinfra's standard two-file convention:
 
 - **`inventory.py`** — list of deploy targets (hosts/groups). Currently a single-host `localhost` inventory; would grow into host groups (e.g. `[("host1", {"ssh_user": "..."}), ...]`) if this expanded beyond one machine.
-- **`deploy.py`** — the actual operations, built from `pyinfra.operations` modules (currently just `apt.packages` to install a fixed list of packages). Additional deploy steps would typically go here as more `pyinfra.operations` calls (e.g. `files`, `server`, `systemd`), or be split into separate op files and imported if `deploy.py` grows large.
+- **`deploy.py`** — the actual operations, built from `pyinfra.operations` modules. It reads the `LinuxName` fact and branches to `apt.packages` (Debian/Ubuntu) or `pacman.packages` (Arch Linux) with a separate package list per distro, since Debian splits `-dev` packages out while Arch ships headers in the main package. An unrecognized distro raises `PyinfraError` with a clear message rather than failing deep inside an operation. Additional deploy steps would typically go here as more `pyinfra.operations` calls (e.g. `files`, `server`, `systemd`), or be split into separate op files and imported if `deploy.py` grows large.
 
 The package list in `deploy.py` is a general-purpose dev/terminal toolchain (build tooling, Python build deps for pyenv-style source builds, neovim, tmux, zsh, network/monitoring tools like `nmap`/`btop`/`screenfetch`).

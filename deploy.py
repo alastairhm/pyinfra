@@ -1,6 +1,10 @@
-from pyinfra.operations import apt
+from pyinfra import host
+from pyinfra.api.exceptions import PyinfraError
+from pyinfra.facts.server import LinuxName
+from pyinfra.operations import apt, pacman
 
-packages = [
+# Debian/Ubuntu package names (split -dev packages, python3-* naming)
+apt_packages = [
         "btop",
         "build-essential",
         "chrony",
@@ -30,9 +34,53 @@ packages = [
         "zsh"
 ]
 
-apt.packages(
-    name="Ensure packages are installed",
-    packages=packages,
-    update=True,
-    _sudo=True
-)
+# Arch package names (no split -dev packages; headers ship in the main package)
+pacman_packages = [
+        "base-devel",
+        "btop",
+        "bzip2",
+        "chrony",
+        "curl",
+        "git",
+        "jq",
+        "libffi",
+        "llvm",
+        "ncurses",
+        "neovim",
+        "nmap",
+        "openssl",
+        "python",
+        "python-pip",
+        "readline",
+        "screenfetch",
+        "sqlite",
+        "tk",
+        "tmux",
+        "wget",
+        "xz",
+        "zlib",
+        "zsh"
+]
+
+distro = host.get_fact(LinuxName)
+
+if distro in ("Debian", "Ubuntu"):
+    apt.packages(
+        name="Ensure packages are installed",
+        packages=apt_packages,
+        update=True,
+        _sudo=True
+    )
+elif distro == "Arch Linux":
+    pacman.packages(
+        name="Ensure packages are installed",
+        packages=pacman_packages,
+        update=True,
+        _sudo=True
+    )
+else:
+    raise PyinfraError(
+        "Unsupported distro {0!r}: deploy.py only supports Debian, Ubuntu, and Arch Linux".format(
+            distro
+        )
+    )
